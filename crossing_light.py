@@ -76,9 +76,18 @@ if 1:
         crossroad_points_osm = geopandas.read_file(osm_crossings)
         crossroad_points_osm.to_crs(crs_2d, inplace=True)
         crossroad_points = crossroad_points.sjoin_nearest(right=crossroad_points_osm, how="inner",
-                max_distance=20, rsuffix="_osm", distance_col="distance")
+                max_distance=20, rsuffix="osm", distance_col="distance")
+        print(crossroad_points)
+        # If 2 crossroads have the same index_osm, they are in fact one same
+        # crossroad
+        gp = crossroad_points.groupby(by="index_osm")
+        print(gp)
+        print(gp.keys)
+        crossroad_points = gp.agg({'geom_x_y': 'first',
+            'name_x': "first",
+            "n_sq_tv": "first",
+            "name_y": "first"})
 
-    print(crossroad_points)
 
 if 1:
     df_merged = crossroad_points.sjoin_nearest(crosslight, how="left",
